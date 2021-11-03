@@ -1,5 +1,7 @@
-a = [1, 3, 6, 8, 4, 6]
+import numpy as np
 
-for i in range(len(a)):
-    if a[i] > 5:
-        print(a[i])
+a = np.empty((0, 2), int)
+b = np.array([[5, 6], [7, 8]])
+c = np.array([[9, 10], [11, 12]])
+res_v = np.vstack((a, b, c))
+print("res_v = ", res_v)
