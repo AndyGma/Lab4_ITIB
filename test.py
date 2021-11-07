@@ -1,7 +1,6 @@
 import numpy as np
 
-a = np.empty((0, 2), int)
-b = np.array([[5, 6], [7, 8]])
-c = np.array([[9, 10], [11, 12]])
-res_v = np.vstack((a, b, c))
-print("res_v = ", res_v)
+a = np.array([[1, 2, 3], [4, 5, 6], [7, 8, 9]], int)
+print(f"Массив a:\n{a}\n")
+b = np.delete(a, -1, axis=1)
+print(f"Массив b:\n{b}\n")
