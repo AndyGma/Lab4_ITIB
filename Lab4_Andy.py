@@ -5,7 +5,7 @@ class Lab_4:
     def __init__(self, var):
         self.var = var
         self.n = 0.3
-        self.N = 5
+        self.N = 0
 
     def Fun(self, x1, x2, x3, x4):
         return (((not(x3)) or x4) and (not(x1))) or x2
@@ -62,6 +62,10 @@ class Lab_4:
                 self.y_pr[i_y16] = 0
             self.Teach(i_y16)
 
+        self.Err = 0
+        for i_check in range(len(self.y_t)):
+            self.Err += np.abs(self.y_t[i_check] - self.y_pr[i_check])
+
     def Teach(self, i):
         # Здесь я должен обновлять веса
         delta = self.y_t[i] - self.y_pr[i]
@@ -72,10 +76,16 @@ class Lab_4:
 
     def Epoch(self):
         self.Boolean()
-        for i in range(self.N):
+
+        while True:
             self.Net()
-        print(self.y_t)
-        print(self.y_pr)
+            self.N += 1
+            if self.Err == 0:
+                break
+        print(f"Кол-во эпох N = {self.N}")
+        print(f"Значения целевые self.y_t : \n{self.y_t}")
+        print(f"Значения полученые self.y_pr : \n{self.y_pr}")
+        print(f"Синаптические веса self.v = \n{self.v}")
 
 # ----------------------------------------
 # Запуск программы
