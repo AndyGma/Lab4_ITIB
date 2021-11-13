@@ -1,10 +1,7 @@
 import numpy as np
 
-print(5+5+5+5)
+a = np.empty((0), int)
+a = np.hstack((a, 5))
+a = np.hstack((a, 6))
 
-print(5
-     +6
-      +
-      5
-      +5)
-
+print(a)

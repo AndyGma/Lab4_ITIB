@@ -6,9 +6,14 @@ class Lab_4:
         self.var = var
         self.n = 0.3
         self.N = 0
+        self.Error = np.array([], int)
 
     def Fun(self, x1, x2, x3, x4):
-        return (((not(x3)) or x4) and (not(x1))) or x2
+        if self.var == 2:  # Аня
+
+            return (((not (x3)) or x4) and (not (x1))) or x2
+        if self.var == 9:  # Андрей
+            return (x1 or x2 or x3) and (x2 or x3 or x4)
 
     def Boolean(self):
         self.mass = np.zeros((16, 5), dtype=np.int32)
@@ -62,9 +67,11 @@ class Lab_4:
                 self.y_pr[i_y16] = 0
             self.Teach(i_y16)
 
-        self.Err = 0
+        err = 0
         for i_check in range(len(self.y_t)):
-            self.Err += np.abs(self.y_t[i_check] - self.y_pr[i_check])
+            err += np.abs(self.y_t[i_check] - self.y_pr[i_check])
+        self.Error = np.hstack((self.Error, err))
+
 
     def Teach(self, i):
         # Здесь я должен обновлять веса
@@ -74,13 +81,22 @@ class Lab_4:
         for j in range(1, len(self.mass_C)+1):
             self.v[j] += update * self.fi[j-1]
 
+    def Paint(self):
+        plt.title(f"График суммарной ошибки НС по эпохам обучения")
+        plt.xlabel("N, эпоха обучения")
+        plt.ylabel("Error, кол-во ошибок")
+        plt.grid()
+        plt.plot(range(1, self.N + 1), self.Error, '-o', c='deepskyblue', label='Y_ist')
+        plt.legend()
+        plt.show()
+
     def Epoch(self):
         self.Boolean()
 
         while True:
             self.Net()
             self.N += 1
-            if self.Err == 0:
+            if self.Error[-1] == 0:
                 break
         print(f"Кол-во эпох N = {self.N}")
         print(f"Значения целевые self.y_t : \n{self.y_t}")
@@ -93,6 +109,7 @@ class Lab_4:
 if __name__ == "__main__":
     Work = Lab_4(9)
     Work.Epoch()
+    Work.Paint()
 
 
 # ----------------------------------------
