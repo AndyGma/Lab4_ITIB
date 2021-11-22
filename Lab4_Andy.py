@@ -2,15 +2,15 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 class Lab_4:
-    def __init__(self, var):
+    def __init__(self, var, method):
         self.var = var
+        self.method = method
         self.n = 0.3
         self.N = 0
         self.Error = np.array([], int)
 
     def Fun(self, x1, x2, x3, x4):
         if self.var == 2:  # Аня
-
             return (((not (x3)) or x4) and (not (x1))) or x2
         if self.var == 9:  # Андрей
             return (x1 or x2 or x3) and (x2 or x3 or x4)
@@ -56,30 +56,55 @@ class Lab_4:
                         ((self.mass_X[i_y16][1] - self.mass_C[i_fi][1]) ** 2) +
                         ((self.mass_X[i_y16][2] - self.mass_C[i_fi][2]) ** 2) +
                         ((self.mass_X[i_y16][3] - self.mass_C[i_fi][3]) ** 2)))
-
-
-            net = np.dot(self.fi, self.v[1:])
-            net += self.v[0]
-
-            if net >= 0:
-                self.y_pr[i_y16] = 1
-            else:
-                self.y_pr[i_y16] = 0
-            self.Teach(i_y16)
+            print(self.fi)
+            self.ChoiceFA(self.method, i_y16)
 
         err = 0
         for i_check in range(len(self.y_t)):
             err += np.abs(self.y_t[i_check] - self.y_pr[i_check])
         self.Error = np.hstack((self.Error, err))
 
+    def ChoiceFA(self, method, i):
+        # методы - Погороговая(1), Логарифмическая(3), Тангенсальная(4)
+        net = np.dot(self.fi, self.v[1:])
+        net += self.v[0]
+        if method == 1:
+            if net >= 0:
+                self.y_pr[i] = 1
+            else:
+                self.y_pr[i] = 0
+            self.Teach(method, i)
+        if method == 3:
+            self.out = 1 / (1 + np.exp(-net))
+            if self.out >= 0.5:
+                self.y_pr[i] = 1
+            else:
+                self.y_pr[i] = 0
+            self.Teach(method, i)
+        if method == 4:
+            self.out = (np.tanh(net) + 1) / 2
+            if self.out >= 0.5:
+                self.y_pr[i] = 1
+            else:
+                self.y_pr[i] = 0
+            self.Teach(method, i)
 
-    def Teach(self, i):
+    def Teach(self, method, i):
         # Здесь я должен обновлять веса
         delta = self.y_t[i] - self.y_pr[i]
         update = self.n * delta
-        self.v[0] += update
-        for j in range(1, len(self.mass_C)+1):
-            self.v[j] += update * self.fi[j-1]
+        if method == 1:
+            self.v[0] += update
+            for j in range(1, len(self.mass_C) + 1):
+                self.v[j] += update * self.fi[j - 1]
+        if method == 3:
+            self.v[0] += update * (self.out * (1 - self.out))
+            for j in range(1, len(self.mass_C) + 1):
+                self.v[j] += update * (self.out * (1 - self.out)) * self.fi[j - 1]
+        if method == 4:
+            self.v[0] += update * (1 - self.out ** 2)
+            for j in range(1, len(self.mass_C) + 1):
+                self.v[j] += update * (1 - self.out ** 2) * self.fi[j - 1]
 
     def Paint(self):
         plt.title(f"График суммарной ошибки НС по эпохам обучения")
@@ -107,7 +132,7 @@ class Lab_4:
 # Запуск программы
 # ----------------------------------------
 if __name__ == "__main__":
-    Work = Lab_4(9)
+    Work = Lab_4(9, 1)  # var, method
     Work.Epoch()
     Work.Paint()
 
