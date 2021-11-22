@@ -49,22 +49,14 @@ class Lab_4:
         print(f"Массив X: \n{self.mass_X}\n")
         return self
 
-    def gauss_FA(self, X):
-        fj_x = []
-        for ci in self.mass_C:
-            fj_x.append(np.exp(-np.sum((X - ci) ** 2)))
-        return fj_x
+    def Gauss_RBF_FA(self, X):
+        fi_J_x = []
+        for i in self.mass_C:
+            fi_J_x.append(np.exp(-np.sum((X - i) ** 2)))
+        return fi_J_x
 
-    def net_input(self, X):
-        """Calculate net input"""
+    def dot_net(self, X):
         return np.dot(X, self.v[1:]) + self.v[0]
-
-    def kvant(self, x):
-        return 1 if x >= 0 else 0
-
-    def predict(self, X):
-        """Return class label after unit step"""
-        return 1 if self.net_input(self.gauss_FA(X)) >= 0 else 0
 
     def Net(self):
         self.Boolean()
@@ -74,40 +66,52 @@ class Lab_4:
         for _ in range(self.n_it):
             errors = 0
             for xi, target in zip(self.mass_X, self.y_t):
-                fj_x = np.array(self.gauss_FA(xi))
-                predict = self.predict(fj_x)
+                fi_J_x = np.array(self.Gauss_RBF_FA(xi))
+                predict = self.fun(fi_J_x)
                 # print(predict, target)
-                update = self.n * (target - predict) * (1 - ((math.tanh(self.net_input(fj_x)) + 1) / 2) ** 2)
-                self.v[1:] += update * fj_x
+                update = self.n * (target - predict) * self.fun_der(fi_J_x)
+                self.v[1:] += update * fi_J_x
                 self.v[0] += update
                 errors += int(abs(target - predict) > 0.5)
             report.append([np.round(self.v, 3), errors])
             self.errors_.append(errors)
             if errors == 0:
                 break
-            pd.DataFrame(report).to_html("Пороговая ФА.html")
         return self
 
-    def predict(self, X):
-        return (self.net_input(X) / (abs(self.net_input(X)) + 1) + 1) / 2
+    def fun(self, X):
+        if self.var == 2:
+            return 1 / (1 + math.exp(-self.dot_net(X)))
+        if self.var == 9:
+            return (math.tanh(self.dot_net(X)) + 1) / 2
 
+    def fun_der(self, X):
+        if self.var == 2:
+            return self.fun(X) * (1 - self.fun(X))
+        if self.var == 9:
+            return (1 - (self.fun(X)) ** 2)
+
+    def Paint(self):
+        plt.title(f"График суммарной ошибки НС по эпохам обучения")
+        plt.xlabel("N, эпоха обучения")
+        plt.ylabel("Error, кол-во ошибок")
+        plt.grid()
+        plt.plot(range(1, len(Work.errors_) + 1), Work.errors_, marker='o')
+        plt.show()
 
 # ----------------------------------------
 # Запуск программы
 # ----------------------------------------
 if __name__ == "__main__":
-    """Пороговая ФА"""
     Work = Lab_4(9)  # var, method
     Work.Net()
     print(Work.errors_)
 
     for xi, target in zip(Work.mass_X, Work.y_t):
-        print(f"{xi} --> {Work.predict(Work.gauss_FA(xi))}; Целевое = {target}")
-    print(Work.v)
-
-    plt.plot(range(1, len(Work.errors_) + 1), Work.errors_, marker='o')
-
-    plt.show()
-
+        print(f"pr = {Work.fun(Work.Gauss_RBF_FA(xi))}, "
+              f"t = {target}")
+    print(f"\nВеса:"
+          f"\n{Work.v}")
+    Work.Paint()
 
 # ----------------------------------------

@@ -66,7 +66,6 @@ class Lab_4:
             for xi, target in zip(self.mass_X, self.y_t):
                 fi_J_x = np.array(self.Gauss_RBF_FA(xi))
                 predict = self.dot_net(fi_J_x)
-                # print(predict, target)
                 update = self.n * (target - (1 if predict >= 0 else 0))
                 self.v[1:] += update * fi_J_x
                 self.v[0] += update
