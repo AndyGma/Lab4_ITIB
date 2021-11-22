@@ -1,11 +1,12 @@
+import math
+
 import numpy as np
 import matplotlib.pyplot as plt
 import pandas as pd
 
 class Lab_4:
-    def __init__(self, var, method):
+    def __init__(self, var):
         self.var = var
-        self.method = method
         self.n = 0.1
         self.n_it = 100
         self.N = 0
@@ -65,7 +66,7 @@ class Lab_4:
         """Return class label after unit step"""
         return 1 if self.net_input(self.gauss_FA(X)) >= 0 else 0
 
-    def Net_porog(self):
+    def Net(self):
         self.Boolean()
         self.errors_ = []
         report = []
@@ -74,12 +75,12 @@ class Lab_4:
             errors = 0
             for xi, target in zip(self.mass_X, self.y_t):
                 fj_x = np.array(self.gauss_FA(xi))
-                predict = self.net_input(fj_x)
+                predict = self.predict(fj_x)
                 # print(predict, target)
-                update = self.n * (target - self.kvant(predict))
+                update = self.n * (target - predict) * (1 - ((math.tanh(self.net_input(fj_x)) + 1) / 2) ** 2)
                 self.v[1:] += update * fj_x
                 self.v[0] += update
-                errors += int((update != 0))
+                errors += int(abs(target - predict) > 0.5)
             report.append([np.round(self.v, 3), errors])
             self.errors_.append(errors)
             if errors == 0:
@@ -87,27 +88,21 @@ class Lab_4:
             pd.DataFrame(report).to_html("Пороговая ФА.html")
         return self
 
+    def predict(self, X):
+        return (self.net_input(X) / (abs(self.net_input(X)) + 1) + 1) / 2
 
-    def Paint(self):
-        plt.title(f"График суммарной ошибки НС по эпохам обучения")
-        plt.xlabel("N, эпоха обучения")
-        plt.ylabel("Error, кол-во ошибок")
-        plt.grid()
-        plt.plot(range(1, self.N + 1), self.Error, '-o', c='deepskyblue', label='Y_ist')
-        plt.legend()
-        plt.show()
 
 # ----------------------------------------
 # Запуск программы
 # ----------------------------------------
 if __name__ == "__main__":
     """Пороговая ФА"""
-    Work = Lab_4(9, 1)  # var, method
-    Work.Net_porog()
+    Work = Lab_4(9)  # var, method
+    Work.Net()
     print(Work.errors_)
 
     for xi, target in zip(Work.mass_X, Work.y_t):
-        print(f"{xi} --> {Work.predict(xi)}; Целевое = {target}")
+        print(f"{xi} --> {Work.predict(Work.gauss_FA(xi))}; Целевое = {target}")
     print(Work.v)
 
     plt.plot(range(1, len(Work.errors_) + 1), Work.errors_, marker='o')

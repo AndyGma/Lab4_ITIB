@@ -3,9 +3,8 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 class Lab_4:
-    def __init__(self, var, method):
+    def __init__(self, var):
         self.var = var
-        self.method = method
         self.n = 0.1
         self.n_it = 100
         self.N = 0
@@ -102,7 +101,7 @@ class Lab_4:
 # ----------------------------------------
 if __name__ == "__main__":
     """Пороговая ФА"""
-    Work = Lab_4(9, 1)  # var, method
+    Work = Lab_4(9)  # var, method
     Work.Net()
     print(Work.errors_)
 
