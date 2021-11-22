@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-import pandas as pd
+
 
 class Lab_4:
     def __init__(self, var):
